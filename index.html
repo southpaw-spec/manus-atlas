@@ -426,7 +426,7 @@
     <div class="email-capture">
       <h2>Save these five — and get five new agents every Friday.</h2>
       <p>One short email a week. The best new Manus agents people are building, sorted by role.</p>
-      <form id="emailForm" class="email-row" action="https://formspree.io/f/REPLACE_WITH_YOUR_FORMSPREE_ID" method="POST">
+      <form id="emailForm" class="email-row">
         <input type="email" name="email" required placeholder="your.email@work.com">
         <input type="hidden" name="role" id="emailRole">
         <input type="hidden" name="result_summary" id="emailResult">
@@ -631,25 +631,37 @@
     }
   });
 
-  // Email submit (with Formspree or similar)
+  // Email submit — direct to our /api/subscribe endpoint, which forwards to Beehiiv
   document.getElementById('emailForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.target;
-    const formData = new FormData(form);
+    const email = form.querySelector('[name="email"]').value;
+    const role = document.getElementById('emailRole').value || '';
+    const result_summary = document.getElementById('emailResult').value || '';
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalLabel = submitBtn.textContent;
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
 
     try {
-      const resp = await fetch(form.action, {
+      const resp = await fetch('/api/subscribe', {
         method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role, result_summary })
       });
+
       if (resp.ok) {
         form.classList.add('hidden');
         document.getElementById('emailSuccess').classList.remove('hidden');
       } else {
+        submitBtn.textContent = originalLabel;
+        submitBtn.disabled = false;
         alert("Couldn't sign you up. Email matt@manusatlas.com and I'll add you manually.");
       }
     } catch (err) {
+      submitBtn.textContent = originalLabel;
+      submitBtn.disabled = false;
       alert("Couldn't sign you up. Email matt@manusatlas.com and I'll add you manually.");
     }
   });
