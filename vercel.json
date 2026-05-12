@@ -3,11 +3,20 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/atlas", "destination": "/api/atlas" },
+    { "source": "/atlas/", "destination": "/api/atlas" },
+    { "source": "/atlas/:slug", "destination": "/api/atlas?slug=:slug" }
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/generate",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/api/subscribe",
       "headers": [
         { "key": "Cache-Control", "value": "no-store" }
       ]
